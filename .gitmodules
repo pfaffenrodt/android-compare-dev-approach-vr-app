@@ -1,0 +1,9 @@
+[submodule "gearvr/GearVRf"]
+	path = gearvr/GearVRf
+	url = git://github.com/pfaffenrodt/GearVRf.git
+[submodule "gearvr/GearVRf-Demos"]
+	path = gearvr/GearVRf-Demos
+	url = git://github.com/gearvrf/GearVRf-Demos.git
+[submodule "cardboard/googlevr-android-sdk"]
+	path = cardboard/googlevr-android-sdk
+	url = git://github.com/googlevr/gvr-android-sdk.git
