@@ -1,0 +1,53 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion "24.0.1"
+
+    defaultConfig {
+        applicationId "de.pfaffenrodt.gearvrf"
+        minSdkVersion 19
+        targetSdkVersion 24
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    productFlavors{
+        cardboard{}
+        occulus{}
+    }
+}
+configurations {
+    cardboardDebugCompile
+    cardboardReleaseCompile
+    occulusDebugCompile
+    occulusReleaseCompile
+}
+allprojects {
+    repositories {
+        flatDir {
+            dirs '../framework'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:24.1.1'
+    cardboardDebugCompile(name: 'gearvrf-cardboard-debug', ext: 'aar')
+    cardboardReleaseCompile(name: 'gearvrf-cardboard-release', ext: 'aar')
+    occulusDebugCompile(name: 'gearvrf-occulus-debug', ext: 'aar')
+    occulusReleaseCompile(name: 'gearvrf-occulus-release', ext: 'aar')
+
+    /**
+     * google cardboard
+     */
+    compile(name: 'google-vr-base', ext: 'aar')
+    compile(name: 'google-vr-common', ext: 'aar')
+}
