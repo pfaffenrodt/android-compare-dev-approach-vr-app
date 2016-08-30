@@ -45,6 +45,12 @@ public class Transform {
         mPosition[2] = z;
     }
 
+    public void setPosition(Vector point) {
+        mPosition[0] = point.getX();
+        mPosition[1] = point.getY();
+        mPosition[2] = point.getZ();
+    }
+
     public float[] getRotation() {
         return mRotation;
     }

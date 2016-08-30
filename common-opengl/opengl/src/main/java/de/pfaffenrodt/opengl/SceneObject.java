@@ -4,24 +4,20 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.support.annotation.NonNull;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.pfaffenrodt.opengl.utils.BufferUtils;
 import de.pfaffenrodt.opengl.utils.OpenGLUtils;
 
 /**
  * Created by Dimitri on 18.08.16.
  */
-public class SceneObject implements Renderable{
+public class SceneObject implements Renderable, RayCollider{
     private static final String TAG = "SceneObject";
 
-    public static final int BYTE_SIZE_FLOAT = 4;
-    public static final int BYTE_SIZE_SHORT = 2;
 
     static final int COORDS_PER_VERTEX = 3;
     public static final int COORDS_PER_UV = 2;
@@ -43,6 +39,8 @@ public class SceneObject implements Renderable{
     private FloatBuffer mTextureCoordinateBuffer;
 
     private List<SceneObject> mChildSceneObjects;
+
+    protected RayCollider mRayCollider;
 
     public SceneObject(){
         mVertexCount = 0;
@@ -74,7 +72,7 @@ public class SceneObject implements Renderable{
         if(uvMap == null|| uvMap.length == 0){
             throw new IllegalArgumentException("SceneObject not contain an uvMap. override getUvMap() and provide an uv map");
         }
-        mTextureCoordinateBuffer = createFloatBuffer(uvMap);
+        mTextureCoordinateBuffer = BufferUtils.createFloatBuffer(uvMap);
         mTextureDataHandle = mShader.loadTexture(resourceId);
     }
 
@@ -87,26 +85,21 @@ public class SceneObject implements Renderable{
         if(uvMap == null|| uvMap.length == 0){
             throw new IllegalArgumentException("SceneObject not contain an uvMap. override getUvMap() and provide an uv map");
         }
-        mTextureCoordinateBuffer = createFloatBuffer(uvMap);
+        mTextureCoordinateBuffer = BufferUtils.createFloatBuffer(uvMap);
         mTextureDataHandle = mShader.loadTexture(bitmap);
     }
 
     private void initVertexBuffer(float[] coords) {
         // initialize vertex byte buffer for shape coordinates
-        this.mVertexBuffer = createFloatBuffer(coords);
+        this.mVertexBuffer = BufferUtils.createFloatBuffer(coords);
     }
 
-    @NonNull
-    private FloatBuffer createFloatBuffer(float[] coords) {
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(
-                // (# of coordinate values * 4 bytes per float)
-                coords.length * BYTE_SIZE_FLOAT);
-        byteBuffer.order(ByteOrder.nativeOrder());
-        FloatBuffer vertexBuffer = byteBuffer.asFloatBuffer();
-        vertexBuffer.put(coords);
-        vertexBuffer.position(0);
-        return vertexBuffer;
+    protected void updateVertexBuffer(float[] coords){
+        this.mVertexBuffer.clear();
+        this.mVertexBuffer.put(coords);
+        this.mVertexBuffer.position(0);
     }
+
 
     public void draw(float[] modelViewProjectionMatrix) {
 
@@ -130,7 +123,7 @@ public class SceneObject implements Renderable{
         int programId = mShader.getProgramId();
         // Add program to OpenGL ES environment
         GLES20.glUseProgram(programId);
-
+        mShader.updateColor();
         // get handle to vertex mShader's vPosition member
         mPositionHandle = GLES20.glGetAttribLocation(programId, Shader.ATTRIBUTE_POSITION);
         if(mTextureDataHandle != 0){
@@ -216,5 +209,21 @@ public class SceneObject implements Renderable{
             mChildSceneObjects = new ArrayList<>();
         }
         mChildSceneObjects.add(sceneObject);
+    }
+
+    public RayCollider getRayCollider() {
+        return mRayCollider;
+    }
+
+    public void setRayCollider(RayCollider rayCollider) {
+        mRayCollider = rayCollider;
+    }
+
+    @Override
+    public boolean intersects(Ray ray) {
+        if(mRayCollider != null){
+            return mRayCollider.intersects(ray);
+        }
+        return false;
     }
 }

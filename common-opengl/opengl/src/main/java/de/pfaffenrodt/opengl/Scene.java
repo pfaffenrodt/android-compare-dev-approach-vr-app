@@ -44,4 +44,17 @@ public class Scene implements Renderable{
             }
         }
     }
+
+    public List<SceneObject> getIntersectionSceneObjects(Ray ray) {
+        List<SceneObject> intersectedSceneObjects = new ArrayList<>();
+        if(mSceneObjects != null) {
+            for (int i = 0; i < mSceneObjects.size(); i++) {
+                SceneObject sceneObject = mSceneObjects.get(i);
+                if(sceneObject.intersects(ray)){
+                    intersectedSceneObjects.add(sceneObject);
+                }
+            }
+        }
+        return intersectedSceneObjects;
+    }
 }

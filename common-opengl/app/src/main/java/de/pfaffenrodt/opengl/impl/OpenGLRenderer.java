@@ -4,20 +4,23 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.os.SystemClock;
+import android.util.Log;
+import android.view.MotionEvent;
 
 import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import de.pfaffenrodt.opengl.Ray;
 import de.pfaffenrodt.opengl.Scene;
+import de.pfaffenrodt.opengl.SceneObject;
 
 /**
  * Created by Dimitri on 18.08.16.
  */
 public class OpenGLRenderer implements GLSurfaceView.Renderer {
-
+    private static final String TAG = "OpenGLRenderer";
     public static final float CAMERA_Z = -3f;
     private final float[] mModelViewProjectionMatrix = new float[16];
     private final float[] mProjectionMatrix = new float[16];
@@ -29,6 +32,13 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
     private float mAngle = 0f;
 
     private Scene mScene;
+
+    private boolean mSingleTab;
+    private boolean mTouch;
+    private int mWidth;
+    private int mHeight;
+    private float mTouchX;
+    private float mTouchY;
 
     public OpenGLRenderer(Context context) {
         this.mContext = context;
@@ -55,23 +65,26 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
         // Create a rotation for the triangle
         // Use the following code to generate constant rotation.
         // Leave this code out when using TouchEvents.
-//         long time = SystemClock.uptimeMillis() % 8000L;
-//         float angle = 0.045f * ((int) time);
-//        float scale = (time + 0.001f) / 8000L;
         Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0f, 1f, 0.0f);
         // Combine the rotation matrix with the projection and camera view
         // Note that the mModelViewProjectionMatrix factor *must be first* in order
         // for the matrix multiplication product to be correct.
         Matrix.multiplyMM(scratch, 0, mModelViewProjectionMatrix, 0, mRotationMatrix, 0);
 
+        if(mTouch) {
+            selectItemByCurrentCameraDirection(scratch);
+        }
         if(mScene != null) {
             mScene.draw(scratch);
         }
     }
 
+
     public void onSurfaceChanged(GL10 unused, int width, int height) {
         GLES20.glViewport(0, 0, width, height);
         float ratio = (float) width / height;
+        mWidth = width;
+        mHeight = height;
 
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
@@ -83,11 +96,75 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
                 -1, //top
                 1, //bottom
                 3f,//near,
-                10//far
+                5//far
                 );
     }
 
     public void scroll(float distanceX){
-        mAngle = (mAngle+distanceX) % 360;
+        mAngle = (mAngle + (distanceX * .25f)) % 360;
+    }
+
+    public boolean onSingleTapConfirmed(MotionEvent e){
+        Log.d(TAG, "onSingleTapConfirmed() called with: " + "e = [" + e + "]");
+        mSingleTab = true;
+        return true;
+    }
+
+    public boolean onTouch(MotionEvent e){
+        mTouchX = e.getX();
+        mTouchY = e.getY();
+        switch (e.getActionMasked()){
+            case MotionEvent.ACTION_DOWN:
+                mTouch = true;
+                break;
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
+                mTouch = false;
+                break;
+        }
+        return true;
+    }
+
+    private void selectItemByCurrentCameraDirection(float[] modelViewProjectionMatrix) {
+        /**
+         * center ray origin
+         */
+        mTouchX = mWidth / 2f;
+        mTouchY = mHeight / 2f;
+
+        Ray ray = Ray.create(mTouchX, mTouchY, mWidth, mHeight, modelViewProjectionMatrix);
+
+        clearSelectedState();
+        selectItem(ray);
+    }
+
+    private void clearSelectedState() {
+        List<SceneObject> sceneObjects = mScene.getSceneObjects();
+        for (int i = 0; i < sceneObjects.size(); i++) {
+            SceneObject sceneObject = sceneObjects.get(i);
+            if(sceneObject instanceof Selectable) {
+                ((Selectable) sceneObject).setSelected(false);
+            }
+        }
+    }
+
+    private void selectItem(Ray ray) {
+        List<SceneObject> intersectionSceneObjects = mScene.getIntersectionSceneObjects(ray);
+        for (int i = 0; i < intersectionSceneObjects.size(); i++) {
+            SceneObject sceneObject = intersectionSceneObjects.get(i);
+            if(sceneObject instanceof Selectable){
+                ((Selectable) sceneObject).setSelected(true);
+                if(mSingleTab){
+                    mSingleTab = false;
+                    onSelectItem(sceneObject);
+                }
+            }
+        }
+    }
+
+    private void onSelectItem(final SceneObject sceneObject) {
+        if(sceneObject instanceof NavigationItem){
+            Log.i(TAG, "onSelectItem: navigationItem:"+sceneObject.toString());
+        }
     }
 }

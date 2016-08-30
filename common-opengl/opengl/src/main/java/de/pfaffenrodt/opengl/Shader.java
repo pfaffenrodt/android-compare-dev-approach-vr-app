@@ -6,6 +6,10 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.support.annotation.IntDef;
 
+import java.nio.FloatBuffer;
+
+import de.pfaffenrodt.opengl.utils.BufferUtils;
+import de.pfaffenrodt.opengl.utils.OpenGLUtils;
 import de.pfaffenrodt.opengl.utils.ResourcesUtils;
 
 /**
@@ -13,6 +17,7 @@ import de.pfaffenrodt.opengl.utils.ResourcesUtils;
  */
 public class Shader {
     public static final String ATTRIBUTE_POSITION = "a_position";
+    public static final String UNIFORM_COLOR = "u_color";
     public static final String UNIFORM_TEXTURE = "u_texture";
     public static final String ATTRIBUTE_TEXTURE_COORDINATE = "a_texture_coordinate";
     public static final String UNIFORM_MODEL_VIEW_PROJECTION_MATRIX = "u_model_view_projection_matrix";
@@ -24,18 +29,26 @@ public class Shader {
     private int fragmentShaderId;
     private int programId;
     private Context mContext;
+    private int mColorHandle;
+    private float[] mColor = {
+            1f, 1f, 1f, .5f
+    };
 
     @IntDef(value = {GLES20.GL_VERTEX_SHADER, GLES20.GL_FRAGMENT_SHADER})
-    public @interface ShaderType{}
+    public @interface ShaderType {
+    }
 
     public Shader(Context context) {
         this.mContext = context;
-        vertexShaderCode =  ResourcesUtils.loadStringFromRawResource(context, R.raw.vertex);
+        vertexShaderCode = ResourcesUtils.loadStringFromRawResource(context, R.raw.vertex);
         fragmentShaderCode = ResourcesUtils.loadStringFromRawResource(context, R.raw.fragment);
         createOpenGLESProgram();
     }
 
     private void createOpenGLESProgram() {
+        // Enable blending
+        GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
         vertexShaderId = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
         fragmentShaderId = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
         // create empty OpenGL ES Program
@@ -85,7 +98,7 @@ public class Shader {
         return programId;
     }
 
-    public int loadTexture(int textureResourceId){
+    public int loadTexture(int textureResourceId) {
         Bitmap bitmap = ResourcesUtils.loadBitmap(mContext, textureResourceId);
         return loadTexture(bitmap);
     }
@@ -114,11 +127,22 @@ public class Shader {
         return textureHandle[0];
     }
 
-    public void updateTexture(int textureHandle, Bitmap bitmap){
+    public void updateTexture(int textureHandle, Bitmap bitmap) {
         // Bind to the texture in OpenGL
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle);
         // Load the bitmap into the bound texture.
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
         bitmap.recycle();//release bitmap from vm
+    }
+
+    public void setColor(float red, float green, float blue, float alpha) {
+        mColor = new float[]{red, green, blue, alpha};
+    }
+
+    public void updateColor() {
+        mColorHandle = GLES20.glGetUniformLocation(programId, UNIFORM_COLOR);
+        OpenGLUtils.checkGlError("glGetUniformLocation");
+        GLES20.glUniform4fv(mColorHandle,1, mColor,0);
+        OpenGLUtils.checkGlError("glUniformMatrix4fv");
     }
 }

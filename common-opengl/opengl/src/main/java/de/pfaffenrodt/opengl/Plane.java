@@ -8,6 +8,9 @@ import android.content.Context;
  * mesh is an 6 vertex, 2 triangles plane
  */
 public class Plane extends SceneObject {
+
+    private final Vector mNormal = new Vector(0,1,0);
+
     public Plane(Context context, float width, float height) {
         super(context, getVertex(width, height));
     }
@@ -54,5 +57,10 @@ public class Plane extends SceneObject {
     @Override
     public float[] getUvMap() {
         return mTextureUVData;
+    }
+
+
+    public void updateSize(float width, float height){
+        updateVertexBuffer(getVertex(width, height));
     }
 }

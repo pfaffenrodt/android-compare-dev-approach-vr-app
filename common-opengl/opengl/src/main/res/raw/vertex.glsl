@@ -5,6 +5,7 @@ uniform mat4 u_model_view_projection_matrix;
 
 attribute vec4 a_position;//position of vertex
 attribute vec2 a_texture_coordinate;//uv map
+attribute vec4 a_color;//color multiply to texture
 
 varying vec2 v_texture_coordinate;//uv map forward to fragment shader
 void main() {

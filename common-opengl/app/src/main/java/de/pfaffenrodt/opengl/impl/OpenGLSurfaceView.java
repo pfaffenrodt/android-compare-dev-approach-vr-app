@@ -31,12 +31,19 @@ public class OpenGLSurfaceView extends GLSurfaceView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        mRenderer.onTouch(event);
          mGestureDetectorCompat.onTouchEvent(event);
         return true;
     }
 
     private final GestureDetector.OnGestureListener gestureListener
             = new GestureDetector.SimpleOnGestureListener(){
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            return mRenderer.onSingleTapConfirmed(e);
+        }
+
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             mRenderer.scroll(distanceX);
