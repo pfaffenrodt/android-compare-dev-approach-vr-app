@@ -1,4 +1,4 @@
-include ':app', ':opengl'
+include ':app', ':opengl', ':common'
 
 // Explicitly load all the libraries and samples using their full path.
 include ':libraries:audio'
@@ -12,3 +12,4 @@ include ':libraries:videowidget'
 
 
 project(':opengl').projectDir = new File(settingsDir, '../../common-opengl/opengl')
+project(':common').projectDir = new File(settingsDir, '../../common-opengl/common')

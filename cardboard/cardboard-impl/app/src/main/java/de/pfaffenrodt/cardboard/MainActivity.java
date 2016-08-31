@@ -17,6 +17,7 @@ import com.google.vr.sdk.base.Viewport;
 import javax.microedition.khronos.egl.EGLConfig;
 
 import de.pfaffenrodt.opengl.Plane;
+import de.pfaffenrodt.opengl.common.MenuScene;
 
 public class MainActivity extends GvrActivity{
 

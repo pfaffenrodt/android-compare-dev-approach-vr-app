@@ -18,6 +18,7 @@
             <option value="$PROJECT_DIR$/libraries/controller" />
             <option value="$PROJECT_DIR$/libraries/panowidget" />
             <option value="$PROJECT_DIR$/libraries/videowidget" />
+            <option value="$PROJECT_DIR$/../../common-opengl/common" />
             <option value="$PROJECT_DIR$/../../common-opengl/opengl" />
           </set>
         </option>
@@ -33,6 +34,7 @@
             <option value="$PROJECT_DIR$/libraries/controller" />
             <option value="$PROJECT_DIR$/libraries/panowidget" />
             <option value="$PROJECT_DIR$/libraries/videowidget" />
+            <option value="$PROJECT_DIR$/../../common-opengl/common" />
             <option value="$PROJECT_DIR$/../../common-opengl/opengl" />
           </set>
         </option>
