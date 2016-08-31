@@ -1,4 +1,4 @@
-package de.pfaffenrodt.opengl.impl;
+package de.pfaffenrodt.opengl.common;
 
 /**
  * Created by Dimitri on 26.08.16.

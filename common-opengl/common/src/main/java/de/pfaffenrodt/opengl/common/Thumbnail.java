@@ -1,4 +1,4 @@
-package de.pfaffenrodt.opengl.impl;
+package de.pfaffenrodt.opengl.common;
 
 import android.content.Context;
 

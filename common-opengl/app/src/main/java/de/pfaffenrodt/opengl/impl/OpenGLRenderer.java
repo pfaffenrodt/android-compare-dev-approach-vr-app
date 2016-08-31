@@ -15,6 +15,9 @@ import javax.microedition.khronos.opengles.GL10;
 import de.pfaffenrodt.opengl.Ray;
 import de.pfaffenrodt.opengl.Scene;
 import de.pfaffenrodt.opengl.SceneObject;
+import de.pfaffenrodt.opengl.common.MenuScene;
+import de.pfaffenrodt.opengl.common.NavigationItem;
+import de.pfaffenrodt.opengl.common.Selectable;
 
 /**
  * Created by Dimitri on 18.08.16.

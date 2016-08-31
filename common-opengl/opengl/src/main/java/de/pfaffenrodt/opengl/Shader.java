@@ -6,9 +6,6 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.support.annotation.IntDef;
 
-import java.nio.FloatBuffer;
-
-import de.pfaffenrodt.opengl.utils.BufferUtils;
 import de.pfaffenrodt.opengl.utils.OpenGLUtils;
 import de.pfaffenrodt.opengl.utils.ResourcesUtils;
 

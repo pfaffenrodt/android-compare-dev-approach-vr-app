@@ -1,13 +1,11 @@
-package de.pfaffenrodt.opengl.impl;
+package de.pfaffenrodt.opengl.common;
 
 import android.content.Context;
 
 import java.util.List;
 
-import de.pfaffenrodt.opengl.Plane;
 import de.pfaffenrodt.opengl.Scene;
 import de.pfaffenrodt.opengl.SceneObject;
-import de.pfaffenrodt.opengl.TextSceneObject;
 import de.pfaffenrodt.opengl.Transform;
 
 /**
