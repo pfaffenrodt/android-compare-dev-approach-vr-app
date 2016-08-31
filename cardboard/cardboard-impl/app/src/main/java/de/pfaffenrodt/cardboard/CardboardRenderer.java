@@ -58,6 +58,7 @@ public class CardboardRenderer implements GvrView.StereoRenderer {
                 0.0f, 0.0f, 0.0f,
                 0.0f, 1.0f, 0.0f);
         headTransform.getHeadView(mHeadView, 0);
+        mController.draw(mHeadView);
     }
 
     @Override
@@ -70,7 +71,7 @@ public class CardboardRenderer implements GvrView.StereoRenderer {
         float[] projectionMatrix = eye.getPerspective(.1f,10);
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mModelViewProjectionMatrix, 0, projectionMatrix, 0, mView, 0);
-        mController.draw(mModelViewProjectionMatrix);
+
         if(mScene != null){
             mScene.draw(mModelViewProjectionMatrix);
         }
