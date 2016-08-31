@@ -3,7 +3,6 @@ package de.pfaffenrodt.opengl.impl;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.support.v4.view.GestureDetectorCompat;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
@@ -31,7 +30,7 @@ public class OpenGLSurfaceView extends GLSurfaceView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        mRenderer.onTouch(event);
+        mRenderer.getController().onTouch(event);
          mGestureDetectorCompat.onTouchEvent(event);
         return true;
     }
@@ -41,7 +40,7 @@ public class OpenGLSurfaceView extends GLSurfaceView {
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            return mRenderer.onSingleTapConfirmed(e);
+            return mRenderer.getController().onSingleTapConfirmed(e);
         }
 
         @Override

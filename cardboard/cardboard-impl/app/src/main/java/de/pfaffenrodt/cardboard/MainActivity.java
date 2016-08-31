@@ -1,13 +1,12 @@
 package de.pfaffenrodt.cardboard;
 
 import android.content.res.Configuration;
-import android.media.Image;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 
-import com.google.vr.sdk.base.AndroidCompat;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.GvrActivity;
 import com.google.vr.sdk.base.GvrView;
@@ -16,13 +15,15 @@ import com.google.vr.sdk.base.Viewport;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
-import de.pfaffenrodt.opengl.Plane;
+import de.pfaffenrodt.opengl.common.Controller;
 import de.pfaffenrodt.opengl.common.MenuScene;
 
 public class MainActivity extends GvrActivity{
 
     public static final float CAMERA_Z = -.1f;
     public static final float ROOM_SCALE = 3f;
+
+    private Controller mController;
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -53,12 +54,11 @@ public class MainActivity extends GvrActivity{
     }
 
     private final GvrView.StereoRenderer stereoRenderer = new GvrView.StereoRenderer() {
+
         private MenuScene mScene;
 
 
         private final float[] mModelViewProjectionMatrix = new float[16];
-        private final float[] mScaleMatrix = new float[16];
-        private final float[] mScaledProjectionMatrix = new float[16];
         private final float[] mHeadView = new float[16];
         private final float[] mView = new float[16];
         private final float[] mCamera = new float[16];
@@ -76,8 +76,6 @@ public class MainActivity extends GvrActivity{
                     0.0f, 0.0f, 0.0f,
                     0.0f, 1.0f, 0.0f);
             headTransform.getHeadView(mHeadView, 0);
-            Matrix.setIdentityM(mScaleMatrix, 0);
-            Matrix.scaleM(mScaleMatrix, 0, ROOM_SCALE, ROOM_SCALE, ROOM_SCALE);
         }
 
         @Override
@@ -88,9 +86,9 @@ public class MainActivity extends GvrActivity{
             // Apply the eye transformation to the camera.
             Matrix.multiplyMM(mView, 0, eye.getEyeView(), 0, mCamera, 0);
             float[] projectionMatrix = eye.getPerspective(.1f,10);
-//            Matrix.multiplyMM(mScaledProjectionMatrix, 0, projectionMatrix, 0, mScaleMatrix, 0);
             // Calculate the projection and view transformation
             Matrix.multiplyMM(mModelViewProjectionMatrix, 0, projectionMatrix, 0, mView, 0);
+            mController.draw(mModelViewProjectionMatrix);
             if(mScene != null){
                 mScene.draw(mModelViewProjectionMatrix);
             }
@@ -101,15 +99,25 @@ public class MainActivity extends GvrActivity{
 
         }
 
+        /**
+         * @param width New width of the surface for a single eye in pixels.
+         * @param height New height of the surface for a single eye in pixels.
+         */
         @Override
-        public void onSurfaceChanged(int i, int i1) {
-
+        public void onSurfaceChanged( int width, int height) {
+            /**
+             * update controller.
+             * controller will calculate center and use it to create an ray for picking
+             */
+            mController.setWidth(width);
+            mController.setHeight(height);
         }
 
         @Override
         public void onSurfaceCreated(EGLConfig eglConfig) {
             GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             mScene = new MenuScene(MainActivity.this);
+            mController = new Controller(mScene);
         }
 
         @Override
@@ -133,5 +141,13 @@ public class MainActivity extends GvrActivity{
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if(mController != null){
+           return mController.onTouch(event);
+        }
+        return false;
     }
 }
